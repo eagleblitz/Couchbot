@@ -4,3 +4,4 @@ __pycache__
 start.bat
 level_data.json
 blocked_channels.json
+rights.json

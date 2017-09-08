@@ -1,5 +1,5 @@
 import discord, asyncio, time
-import commands, level
+import commands, level, permission
 from auth import BOT_TOKEN
 client = discord.Client()
 
@@ -23,16 +23,26 @@ def on_message(message):
 	if message.content is "save" and message.author.id is client.user.id:
 		level.save()
 		commands.save()
+		permission.save()
 		print("saved!")
 
 	level.tick()
 	level.process_message(message=message)
-	if message.content.lower().startswith('!block'):
+	if message.content.lower().startswith('!block') and permission.has_permission(message.author.id) == 0:
 		yield from commands.block(message=message, client=client)
-	elif message.content.lower().startswith('!unblock'):
+	elif message.content.lower().startswith('!unblock') and permission.has_permission(message.author.id) == 0:
 		yield from commands.unblock(message=message, client=client)
 	elif message.content.lower().startswith('!status'):
 		yield from level.status(message=message, client=client)
+
+	elif message.content.lower().startswith('!givexp') and permission.has_permission(message.author.id) <= 1:
+		yield from level.give_exp(message=message, client=client)
+
+	elif message.content.lower().startswith('!takexp') and permission.has_permission(message.author.id) <= 1:
+		yield from level.take_exp(message=message, client=client)
+
+	elif message.content.lower().startswith('!setxp') and permission.has_permission(message.author.id) <= 1:
+		yield from level.set_exp(message=message, client=client)
 
 
 def save():
@@ -47,6 +57,7 @@ if __name__ == "__main__":
 	timer = time.time()
 	commands.load()
 	level.load()
+	permission.load()
 	loop = asyncio.get_event_loop()
 	try:
 		loop.run_until_complete(client.start(BOT_TOKEN))

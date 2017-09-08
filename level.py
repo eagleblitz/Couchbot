@@ -70,6 +70,18 @@ def tick():
 
 @asyncio.coroutine
 def status(message, client):
+	@asyncio.coroutine
+	def print_status(client, author, channel, values):
+		name = author.name
+		if author.nick:
+			name = author.nick
+		yield from client.send_message(
+			channel, "--------------------------------------\nStatus of **" +
+			name + "**:\nLevel _" + values[0] + "_, Rank _" + values[1] + "_\n" +
+			"Current exp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED)
+			+ "\n--------------------------------------"
+		)
+
 	if is_blocked(message.channel):
 		return
 
@@ -106,31 +118,181 @@ def status(message, client):
 	yield from client.send_message(message.channel, "Member not found!")
 
 
-@asyncio.coroutine
-def print_status(client, author, channel, values):
-	name = author.name
-	if author.nick:
-		name = author.nick
-	yield from client.send_message(
-		channel, "--------------------------------------\nStatus of **" +
-		name + "**:\nLevel _" + values[0] + "_, Rank _" + values[1] + "_\n" +
-		"Current exp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED)
-		+ "\n--------------------------------------"
-	)
-
-
 def get_data(clientid):
 	global level_data
 	data = []
 	for user in level_data:
 		if 'id' in user and user['id'] == clientid:
-			data.append(str(math.floor(user["exp"] / LEVEL_EXPERIENCE_NEEDED)))
+			data.append(str(math.floor(1 + (user["exp"] / LEVEL_EXPERIENCE_NEEDED))))
 			rank = int(math.floor(int(data[0]) / 10))
-			if rank >= 9 : rank = 9
+			if rank >= 9: rank = 9
+			if rank < 0: rank = 0
 			data.append(LEVEL_RANKS[rank])
-			data.append(str(user["exp"] - int(data[0]) * LEVEL_EXPERIENCE_NEEDED))
+			data.append(str(user["exp"] - (int(data[0]) - 1) * LEVEL_EXPERIENCE_NEEDED))
 			return data
 	data.append("1")
 	data.append(LEVEL_RANKS[0])
 	data.append("0")
 	return data
+
+
+@asyncio.coroutine
+def give_exp(message, client):
+	# check syntax
+	data = message.content.split(" ")
+	if data and len(data) >= 3:
+		try:
+			amount = int(data[1])
+		except ValueError:
+			yield from client.send_message(message.channel, "Syntax incorrect")
+			return
+
+		if amount < 0:
+			yield from client.send_message(message.channel, "Amount can't be negative.")
+			return
+
+		name = data[2]
+		for i in range(3, len(data)):
+			name += " " + data[i]
+
+		found = False
+
+		if message.mentions:
+			for leveluser in level_data:
+				if "id" in leveluser and message.mentions[0].id == leveluser["id"]:
+					leveluser["exp"] += amount
+					found = True
+
+			if not found:
+				level_data.append({"id": message.mentions[0].id, "exp": amount})
+
+			return
+		member = discord.utils.get(message.server.members, name=name)
+		if member:
+			for leveluser in level_data:
+				if "id" in leveluser and member.id == leveluser["id"]:
+					leveluser["exp"] += amount
+					found = True
+
+			if not found:
+				level_data.append({"id": member.id, "exp": amount})
+			return
+
+		member = discord.utils.get(message.server.members, nick=name)
+
+		if member:
+			for leveluser in level_data:
+				if "id" in leveluser and member.id == leveluser["id"]:
+					leveluser["exp"] += amount
+					found = True
+
+			if not found:
+				level_data.append({"id": member.id, "exp": amount})
+			return
+		yield from client.send_message(message.channel, "Member not found.")
+	else:
+		yield from client.send_message(message.channel, "Syntax incorrect.")
+
+
+@asyncio.coroutine
+def take_exp(message, client):
+	# check syntax
+	data = message.content.split(" ")
+	if data and len(data) >= 3:
+		try:
+			amount = int(data[1])
+		except ValueError:
+			yield from client.send_message(message.channel, "Syntax incorrect")
+			return
+
+		if amount < 0:
+			yield from client.send_message(message.channel, "Amount can't be negative.")
+			return
+
+		name = data[2]
+		for i in range(3, len(data)):
+			name += " " + data[i]
+
+		if message.mentions:
+			for leveluser in level_data:
+				if "id" in leveluser and message.mentions[0].id == leveluser["id"]:
+					if leveluser["exp"] < amount: leveluser["exp"] = 0
+					else: leveluser["exp"] -= amount
+			return
+
+		member = discord.utils.get(message.server.members, name=name)
+		if member:
+			for leveluser in level_data:
+				if "id" in leveluser and member.id == leveluser["id"]:
+					if leveluser["exp"] < amount: leveluser["exp"] = 0
+					else: leveluser["exp"] -= amount
+			return
+
+		member = discord.utils.get(message.server.members, nick=name)
+		if member:
+			for leveluser in level_data:
+				if "id" in leveluser and member.id == leveluser["id"]:
+					if leveluser["exp"] < amount: leveluser["exp"] = 0
+					else: leveluser["exp"] -= amount
+			return
+
+		yield from client.send_message(message.channel, "Member not found.")
+	else:
+		yield from client.send_message(message.channel, "Syntax incorrect.")
+
+
+def set_exp(message, client):
+	# check syntax
+	data = message.content.split(" ")
+	if data and len(data) >= 3:
+		try:
+			amount = int(data[1])
+		except ValueError:
+			yield from client.send_message(message.channel, "Syntax incorrect")
+			return
+
+		if amount < 0:
+			yield from client.send_message(message.channel, "Amount can't be negative.")
+			return
+
+		name = data[2]
+		for i in range(3, len(data)):
+			name += " " + data[i]
+
+		found = False
+
+		if message.mentions:
+			for leveluser in level_data:
+				if "id" in leveluser and message.mentions[0].id == leveluser["id"]:
+					leveluser["exp"] = amount
+					found = True
+
+			if not found:
+				level_data.append({"id": message.mentions[0].id, "exp": amount})
+
+			return
+		member = discord.utils.get(message.server.members, name=name)
+		if member:
+			for leveluser in level_data:
+				if "id" in leveluser and member.id == leveluser["id"]:
+					leveluser["exp"] = amount
+					found = True
+
+			if not found:
+				level_data.append({"id": member.id, "exp": amount})
+			return
+
+		member = discord.utils.get(message.server.members, nick=name)
+
+		if member:
+			for leveluser in level_data:
+				if "id" in leveluser and member.id == leveluser["id"]:
+					leveluser["exp"] = amount
+					found = True
+
+			if not found:
+				level_data.append({"id": member.id, "exp": amount})
+			return
+		yield from client.send_message(message.channel, "Member not found.")
+	else:
+		yield from client.send_message(message.channel, "Syntax incorrect.")
