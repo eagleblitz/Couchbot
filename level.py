@@ -1,7 +1,7 @@
 import asyncio, json, time, random
 import discord.utils
 import math
-from commands import isBlocked
+from commands import is_blocked
 user_data = []
 level_data = []
 # level_data: {"Name"="<name>", "LevelPoints" = <points>}
@@ -13,7 +13,7 @@ LEVEL_RANK_SHORT = ["Nb", "Rk", "Gen", "Lt", "Mj", "Col", "Com", "Capt", "Mst", 
 LEVEL_EXPERIENCE_NEEDED = 350
 LEVEL_RANDOM_VALUE_MIN = 15
 LEVEL_RANDOM_VALUE_MAX = 40
-LEVEL_TIMER = 10
+LEVEL_TIMER = 300
 
 clock = 0
 
@@ -39,7 +39,7 @@ def save():
 
 
 def process_message(message):
-	if isBlocked(message.channel):
+	if is_blocked(message.channel):
 		return
 	for user in user_data:
 		if message.author.id in user["id"]:

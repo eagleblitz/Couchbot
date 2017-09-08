@@ -3,3 +3,4 @@ __pycache__
 .idea
 start.bat
 level_data.json
+blocked_channels.json
