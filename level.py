@@ -82,9 +82,9 @@ def status(message, client):
 		yield from print_status(client=client, name=message.author.name, author=message.author, values=values)
 	else:
 		data = message.content.split(" ")
-		name = ""
-		for i in range(1, len(data)):
-			name += data[i]
+		name = data[1]
+		for i in range(2, len(data)):
+			name += " " + data[i]
 
 		member = discord.utils.get(message.server.members, name=name)
 		if member:
