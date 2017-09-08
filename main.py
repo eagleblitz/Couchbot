@@ -1,7 +1,9 @@
-import discord, asyncio
+import discord, asyncio, time
 import commands, level
 from auth import BOT_TOKEN
 client = discord.Client()
+
+timer = 0
 
 
 @client.event
@@ -17,6 +19,12 @@ def on_ready():
 @client.event
 @asyncio.coroutine
 def on_message(message):
+	save()
+	if message.content is "save" and message.author.id is client.user.id:
+		level.save()
+		commands.save()
+		print("saved!")
+
 	level.tick()
 	level.process_message(message=message)
 	if message.content.lower().startswith('!block'):
@@ -27,7 +35,16 @@ def on_message(message):
 		yield from level.status(message=message, client=client)
 
 
+def save():
+	global timer
+	if time.time() - timer > 3600:
+		level.save()
+		commands.save()
+		timer = time.time()
+		print("fuck me senpai")
+
 if __name__ == "__main__":
+	timer = time.time()
 	commands.load()
 	level.load()
 	loop = asyncio.get_event_loop()
@@ -36,6 +53,7 @@ if __name__ == "__main__":
 	except (KeyboardInterrupt, Exception):
 		loop.close()
 		client.logout()
+		running = False
 	finally:
 		level.save()
 		commands.save()
