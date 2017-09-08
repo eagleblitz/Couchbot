@@ -13,7 +13,8 @@ def block(message, client):
 			blocked_channels.append(message.channel.id)
 			yield from client.send_message(message.channel, "Channel blocked!")
 			return
-	yield from client.send_message(message.channel, "Could not block channel! :dont_know_man:")
+		else: yield from client.send_message(message.channel, "Channel already blocked.")
+	else: yield from client.send_message(message.channel, "Could not block channel!")
 
 
 @asyncio.coroutine
@@ -23,7 +24,8 @@ def unblock(message, client):
 			blocked_channels.remove(message.channel.id)
 			yield from client.send_message(message.channel, "Channel unblocked!")
 			return
-	yield from client.send_message(message.channel, "Could not unblock channel! :dont_know_man:")
+		else: yield from client.send_message(message.channel, "Channel already unblocked.")
+	else: yield from client.send_message(message.channel, "Could not unblock channel!")
 
 
 def is_blocked(channel):
