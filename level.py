@@ -81,6 +81,11 @@ def status(message, client):
 		values = get_data(message.author.id)
 		yield from print_status(client=client, name=message.author.name, author=message.author, values=values)
 	else:
+		if message.mentions:
+			values = get_data(message.mentions[0].id)
+			yield from print_status(client=client, name=message.mentions[0].name, author=message.author, values=values)
+			return
+
 		data = message.content.split(" ")
 		name = data[1]
 		for i in range(2, len(data)):
@@ -90,8 +95,14 @@ def status(message, client):
 		if member:
 			values = get_data(member.id)
 			yield from print_status(client=client, name=member.name, author=message.author, values=values)
+			return
 		else:
-			yield from client.send_message(message.channel, "Member not found!")
+			member = discord.utils.get(message.server.members, nick=name)
+			if member:
+				values = get_data(member.id)
+				yield from print_status(client=client, name=member.name, author=message.author, values=values)
+				return
+	yield from client.send_message(message.channel, "Member not found!")
 
 
 @asyncio.coroutine
