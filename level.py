@@ -69,7 +69,7 @@ def tick():
 @asyncio.coroutine
 def status(message, client):
 	data = message.content.split(" ")
-	if not message.server:
+	if not message.server and not is_blocked(message.channel):
 		yield from client.send_message(message.author, "You can't do that here, you must send from a server.")
 		return
 
@@ -85,8 +85,8 @@ def status(message, client):
 				member.name + "**:\nLevel _" + values[0] + "_, Rank _" + values[1] + "_\n" +
 				"Current exp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED) + "\n--------------------------------------"
 			)
-		else: yield from client.send_message(message.channel, "Member not found!")
-	else: yield from client.send_message(message.channel, "Syntax incorrect.")
+		elif not is_blocked(message.channel): yield from client.send_message(message.channel, "Member not found!")
+	elif not is_blocked(message.channel): yield from client.send_message(message.channel, "Syntax incorrect.")
 
 
 def get_data(clientid):
