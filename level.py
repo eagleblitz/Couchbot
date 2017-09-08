@@ -41,6 +41,8 @@ def save():
 def process_message(message):
 	if is_blocked(message.channel):
 		return
+	if message.content.startswith("!status"):
+		return
 	for user in user_data:
 		if message.author.id in user["id"]:
 			user["nof"] += 1
@@ -70,32 +72,42 @@ def tick():
 def status(message, client):
 	if is_blocked(message.channel):
 		return
-	data = message.content.split(" ")
+
 	if not message.server:
 		yield from client.send_message(message.author, "You can't do that here, you must send from a server.")
 		return
 
-	if len(data) > 1:
-		name = data[1]
+	if message.content.lower() == "!status" or message.content.lower() == "!status ":
+		values = get_data(message.author.id)
+		yield from print_status(client=client, name=message.author.name, author=message.author, values=values)
+	else:
+		data = message.content.split(" ")
+		name = ""
+		for i in range(1, len(data)):
+			name += data[i]
+
 		member = discord.utils.get(message.server.members, name=name)
 		if member:
-			print(member.id)
 			values = get_data(member.id)
-			print(values)
-			yield from client.send_message(
-				message.author, "--------------------------------------\nStatus of **" +
-				member.name + "**:\nLevel _" + values[0] + "_, Rank _" + values[1] + "_\n" +
-				"Current exp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED) + "\n--------------------------------------"
-			)
-		else: yield from client.send_message(message.channel, "Member not found!")
-	else: yield from client.send_message(message.channel, "Syntax incorrect.")
+			yield from print_status(client=client, name=member.name, author=message.author, values=values)
+		else:
+			yield from client.send_message(message.channel, "Member not found!")
+
+
+@asyncio.coroutine
+def print_status(client, name, author, values):
+	yield from client.send_message(
+		author, "--------------------------------------\nStatus of **" +
+		name + "**:\nLevel _" + values[0] + "_, Rank _" + values[1] + "_\n" +
+		"Current exp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED)
+		+ "\n--------------------------------------"
+	)
 
 
 def get_data(clientid):
 	global level_data
 	data = []
 	for user in level_data:
-		print(user)
 		if 'id' in user and user['id'] == clientid:
 			data.append(str(math.floor(user["exp"] / LEVEL_EXPERIENCE_NEEDED)))
 			rank = int(math.floor(int(data[0]) / 10))
