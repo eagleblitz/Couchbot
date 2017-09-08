@@ -75,12 +75,17 @@ def status(message, client):
 		name = author.name
 		if author.nick:
 			name = author.nick
-		yield from client.send_message(
-			channel, "--------------------------------------\nStatus of **" +
-			name + "**:\nLevel _" + values[0] + "_, Rank _" + values[1] + "_\n" +
-			"Current exp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED)
-			+ "\n--------------------------------------"
-		)
+
+		# Configure embedded message
+		title = values[1]
+		description = "Level: " + values[0] + "\nExp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED)
+
+		# Embed the message
+		em = discord.Embed(title=title, description=description, colour=0x5942f4)
+		em.set_author(name=author.name, icon_url=author.avatar_url)
+
+		# Post the embedded message
+		yield from client.send_message(channel, embed=em)
 
 	if is_blocked(message.channel):
 		return
