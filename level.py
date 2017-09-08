@@ -79,12 +79,12 @@ def status(message, client):
 
 	if message.content.lower() == "!status" or message.content.lower() == "!status ":
 		values = get_data(message.author.id)
-		yield from print_status(client=client, name=message.author.name, channel=message.channel, values=values)
+		yield from print_status(client=client, author=message.author, channel=message.channel, values=values)
 		return
 	else:
 		if message.mentions:
 			values = get_data(message.mentions[0].id)
-			yield from print_status(client=client, name=message.mentions[0].name, channel=message.channel, values=values)
+			yield from print_status(client=client, author=message.mentions[0], channel=message.channel, values=values)
 			return
 
 		data = message.content.split(" ")
@@ -95,19 +95,22 @@ def status(message, client):
 		member = discord.utils.get(message.server.members, name=name)
 		if member:
 			values = get_data(member.id)
-			yield from print_status(client=client, name=member.name, channel=message.channel, values=values)
+			yield from print_status(client=client, author=member, channel=message.channel, values=values)
 			return
 		else:
 			member = discord.utils.get(message.server.members, nick=name)
 			if member:
 				values = get_data(member.id)
-				yield from print_status(client=client, name=member.name, channel=message.channel, values=values)
+				yield from print_status(client=client, author=member, channel=message.channel, values=values)
 				return
 	yield from client.send_message(message.channel, "Member not found!")
 
 
 @asyncio.coroutine
-def print_status(client, name, channel, values):
+def print_status(client, author, channel, values):
+	name = author.name
+	if author.nick:
+		name = author.nick
 	yield from client.send_message(
 		channel, "--------------------------------------\nStatus of **" +
 		name + "**:\nLevel _" + values[0] + "_, Rank _" + values[1] + "_\n" +
