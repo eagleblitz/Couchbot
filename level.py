@@ -2,6 +2,8 @@ import asyncio, json, time, random
 import discord.utils
 import math
 from commands import is_blocked
+from operator import itemgetter
+
 user_data = []
 level_data = []
 # level_data: {"Name"="<name>", "LevelPoints" = <points>}
@@ -9,7 +11,6 @@ FILE_PATH = "level_data.json"
 
 LEVEL_MAX = 100
 LEVEL_RANKS = ["Newbie", "Rookie", "General", "Lieutenant", "Major", "Colonel", "Commandant", "Captain", "Master", "God"]
-LEVEL_RANK_SHORT = ["Nb", "Rk", "Gen", "Lt", "Mj", "Col", "Com", "Capt", "Mst", "God"]
 LEVEL_EXPERIENCE_NEEDED = 350
 LEVEL_RANDOM_VALUE_MIN = 15
 LEVEL_RANDOM_VALUE_MAX = 40
@@ -246,6 +247,7 @@ def take_exp(message, client):
 		yield from client.send_message(message.channel, "Syntax incorrect.")
 
 
+@asyncio.coroutine
 def set_exp(message, client):
 	# check syntax
 	data = message.content.split(" ")
@@ -301,3 +303,33 @@ def set_exp(message, client):
 		yield from client.send_message(message.channel, "Member not found.")
 	else:
 		yield from client.send_message(message.channel, "Syntax incorrect.")
+
+
+@asyncio.coroutine
+def top(message, client):
+	def getName(id):
+		for member in message.server.members:
+			if member.id == id:
+				if member.nick:
+					return member.nick
+				return member.name
+		return "Not found."
+
+	data = message.content.split(" ")
+	if len(data) < 2:
+		yield from client.send_message(message.channel, "Syntax incorrect.")
+		return
+
+	amount = int(data[1])
+	newlist = sorted(level_data, key=itemgetter('exp'), reverse=True)
+
+	description = ""
+
+	for i in range(0, amount):
+		if i < len(newlist):
+			description += str(i + 1) + ". " + getName(newlist[i]['id']) + " - Level " + \
+							str(int(newlist[i]['exp'] / LEVEL_EXPERIENCE_NEEDED) + 1) + "\n"
+
+	em = discord.Embed(title="Top " + str(amount), description=description, colour=0x47ef6f)
+
+	yield from client.send_message(message.channel, embed=em)

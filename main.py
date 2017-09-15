@@ -44,6 +44,9 @@ def on_message(message):
 	elif message.content.lower().startswith('!setxp') and permission.has_permission(message.author.id) <= 1:
 		yield from level.set_exp(message=message, client=client)
 
+	elif message.content.lower().startswith('!top') and permission.has_permission(message.author.id) <= 3:
+		yield from level.top(message=message, client=client)
+
 
 def save():
 	global timer
