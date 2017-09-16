@@ -79,7 +79,7 @@ def status(message, client):
 
 		# Configure embedded message
 		title = values[1]
-		description = "Level: " + values[0] + "\nExp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED)
+		description = "Level: " + values[0] + "\nExp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED) +"\nRank:" + values[3]
 
 		# Embed the message
 		em = discord.Embed(title=title, description=description, colour=0x5942f4)
@@ -125,9 +125,11 @@ def status(message, client):
 
 
 def get_data(clientid):
+	newlist = sorted(level_data, key=itemgetter('exp'), reverse=True)
 	global level_data
 	data = []
-	for user in level_data:
+	place = 1
+	for user in newlist:
 		if 'id' in user and user['id'] == clientid:
 			data.append(str(math.floor(1 + (user["exp"] / LEVEL_EXPERIENCE_NEEDED))))
 			rank = int(math.floor(int(data[0]) / 10))
@@ -135,10 +137,14 @@ def get_data(clientid):
 			if rank < 0: rank = 0
 			data.append(LEVEL_RANKS[rank])
 			data.append(str(user["exp"] - (int(data[0]) - 1) * LEVEL_EXPERIENCE_NEEDED))
+			data.append(str(place))
 			return data
+		place += 1
+
 	data.append("1")
 	data.append(LEVEL_RANKS[0])
 	data.append("0")
+	data.append("N/A")
 	return data
 
 
