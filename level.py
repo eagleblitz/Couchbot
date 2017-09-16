@@ -79,7 +79,7 @@ def status(message, client):
 
 		# Configure embedded message
 		title = values[1]
-		description = "Level: " + values[0] + "\nExp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED) +"\nRank:" + values[3]
+		description = "Level: " + values[0] + "\nExp: " + values[2] + "/" + str(LEVEL_EXPERIENCE_NEEDED) +"\nRank: " + values[3]
 
 		# Embed the message
 		em = discord.Embed(title=title, description=description, colour=0x5942f4)
