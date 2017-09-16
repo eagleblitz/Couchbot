@@ -11,7 +11,9 @@
 ### Files needed:
 First of all, you need to create a "**auth.py**" file in the main directory. The file needs to contain a variable called __BOT_TOKEN__.
 Eg: ```BOT_TOKEN = "wzc02uaFw2SC9u1aMhaJ5RQP.DIqchQ.fir6VJJ4zO1cCNeLnvNMKwW9yCY"```
+
 Next, you'll need to set yourself permission to use the bot's commands like __!block__ or __!unblock__, to do that you simply create a file called "**rights.json**". Syntax:
+
 ```
 [
     {
