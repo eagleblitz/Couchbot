@@ -1,6 +1,6 @@
 import discord, asyncio, time
 import commands, level, permission
-from auth import BOT_TOKEN
+import config, logging
 client = discord.Client()
 
 timer = 0
@@ -9,11 +9,11 @@ timer = 0
 @client.event
 @asyncio.coroutine
 def on_ready():
-	print("-----------------")
-	print(client.user.name)
-	print(client.user.id)
-	print(client.user.display_name)
-	print("-----------------")
+	logging.debug("-----------------")
+	logging.debug(client.user.name)
+	logging.debug(client.user.id)
+	logging.debug(client.user.display_name)
+	logging.debug("-----------------")
 
 
 @client.event
@@ -24,7 +24,7 @@ def on_message(message):
 		level.save()
 		commands.save()
 		permission.save()
-		print("saved!")
+		logging.debug("Saving...")
 
 	level.tick()
 	level.process_message(message=message)
@@ -57,13 +57,14 @@ def save():
 		print("fuck me senpai")
 
 if __name__ == "__main__":
+	logging.basicConfig(filename=config.LOG_PATH, filemode='w', level=logging.DEBUG)
 	timer = time.time()
 	commands.load()
 	level.load()
 	permission.load()
 	loop = asyncio.get_event_loop()
 	try:
-		loop.run_until_complete(client.start(BOT_TOKEN))
+		loop.run_until_complete(client.start(config.BOT_TOKEN))
 	except (KeyboardInterrupt, Exception):
 		loop.close()
 		client.logout()

@@ -1,6 +1,6 @@
 import asyncio, json, time, random
 import discord.utils
-import math
+import math, re
 from commands import is_blocked
 from operator import itemgetter
 
@@ -105,28 +105,33 @@ def status(message, client):
 			yield from print_status(client=client, author=message.mentions[0], channel=message.channel, values=values)
 			return
 
-		data = message.content.split(" ")
-		name = data[1]
-		for i in range(2, len(data)):
-			name += " " + data[i]
+		args = message.content[8:]
+		names = re.findall('"([^"]*)"', args)
 
-		member = discord.utils.get(message.server.members, name=name)
-		if member:
-			values = get_data(member.id)
-			yield from print_status(client=client, author=member, channel=message.channel, values=values)
-			return
-		else:
-			member = discord.utils.get(message.server.members, nick=name)
+		if len(names) == 0:
+			names = args.split(" ")
+			if len(names) == 0:
+				names = [args]
+
+		print(names)
+
+		for name in names:
+			member = discord.utils.get(message.server.members, name=name)
 			if member:
 				values = get_data(member.id)
 				yield from print_status(client=client, author=member, channel=message.channel, values=values)
-				return
-	yield from client.send_message(message.channel, "Member not found!")
+			else:
+				member = discord.utils.get(message.server.members, nick=name)
+				if member:
+					values = get_data(member.id)
+					yield from print_status(client=client, author=member, channel=message.channel, values=values)
+				else:
+					yield from client.send_message(message.channel, "Member '" + name + "' not found!")
 
 
 def get_data(clientid):
-	newlist = sorted(level_data, key=itemgetter('exp'), reverse=True)
 	global level_data
+	newlist = sorted(level_data, key=itemgetter('exp'), reverse=True)
 	data = []
 	place = 1
 	for user in newlist:
@@ -325,8 +330,25 @@ def top(message, client):
 	if len(data) < 2:
 		yield from client.send_message(message.channel, "Syntax incorrect.")
 		return
+	if len(data) >= 3:
+		amount1 = max(int(data[1]), 1)
+		amount2 = max(min(int(data[2]), 100), 1)
+		newlist = sorted(level_data, key=itemgetter('exp'), reverse=True)
+
+		description = ""
+
+		for i in range(amount1 - 1, amount1 + amount2):
+			if i < len(newlist):
+				description += str(i + 1) + ". " + getName(newlist[i]['id']) + " - Level " + \
+								str(int(newlist[i]['exp'] / LEVEL_EXPERIENCE_NEEDED) + 1) + "\n"
+
+		em = discord.Embed(title="Top from " + str(amount1) + " to " + str(amount1 + amount2), description=description, colour=0x47ef6f)
+
+		yield from client.send_message(message.channel, embed=em)
+		return
 
 	amount = int(data[1])
+	amount = max(min(amount, 100), 1)
 	newlist = sorted(level_data, key=itemgetter('exp'), reverse=True)
 
 	description = ""

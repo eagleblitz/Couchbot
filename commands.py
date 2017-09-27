@@ -1,6 +1,5 @@
 import asyncio, json
-from auth import OWNER_ID
-
+from permission import has_permission
 blocked_channels = []
 
 FILE_PATH = "blocked_channels.json"
@@ -8,7 +7,7 @@ FILE_PATH = "blocked_channels.json"
 
 @asyncio.coroutine
 def block(message, client):
-	if message.author.id == OWNER_ID:
+	if has_permission(message.author.id) == 0:
 		if message.channel.id not in blocked_channels:
 			blocked_channels.append(message.channel.id)
 			yield from client.send_message(message.channel, "Channel blocked!")
@@ -19,7 +18,7 @@ def block(message, client):
 
 @asyncio.coroutine
 def unblock(message, client):
-	if message.author.id == OWNER_ID:
+	if has_permission(message.author.id) == 0:
 		if message.channel.id in blocked_channels:
 			blocked_channels.remove(message.channel.id)
 			yield from client.send_message(message.channel, "Channel unblocked!")

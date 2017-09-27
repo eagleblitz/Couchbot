@@ -6,8 +6,8 @@
 
 # Setup
 ### Dependencies:
+* Python 3
 * [Discord py](https://github.com/Rapptz/discord.py)
-* Python (*obviously*)
 ### Files needed:
 First of all, you need to create a "**auth.py**" file in the main directory. The file needs to contain a variable called __BOT_TOKEN__.
 Eg: ```BOT_TOKEN = "wzc02uaFw2SC9u1aMhaJ5RQP.DIqchQ.fir6VJJ4zO1cCNeLnvNMKwW9yCY"```
@@ -27,4 +27,4 @@ __Note__: Currently the ***admin*** and ***helper*** ranks are not *in use* mean
 
 Now, believe it or not, the setup is complete!
 ### Starting the bot
-To start the bot, open a command terminal in the **directory of the main.py file** and simply write ```python main.py```
+To start the bot, open a command terminal in the **directory of the charno.py file** and simply write ```python charno.py``` (or ```python3 charno.py```, depending on your python setup)
