@@ -17,8 +17,8 @@ Next, you'll need to set yourself permission to use the bot's commands like __!b
 ```json
 [
     {
-        "owner":["id1", "id2"]
-        "admin":["id3", "id4"]
+        "owner":["id1", "id2"],
+        "admin":["id3", "id4"],
         "helper":["id5", "id6"]
     }
 ]
