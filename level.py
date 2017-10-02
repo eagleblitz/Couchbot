@@ -336,7 +336,7 @@ def top(message, client):
 		return
 	if len(data) >= 3:
 		amount1 = max(int(data[1]), 1)
-		amount2 = max(min(int(data[2]), 100), 1)
+		amount2 = max(min(int(data[2]), 30), 1)
 		newlist = sorted(level_data, key=itemgetter('exp'), reverse=True)
 
 		description = ""
@@ -352,7 +352,7 @@ def top(message, client):
 		return
 
 	amount = int(data[1])
-	amount = max(min(amount, 100), 1)
+	amount = max(min(amount, 30), 1)
 	newlist = sorted(level_data, key=itemgetter('exp'), reverse=True)
 
 	description = ""
