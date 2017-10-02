@@ -1,1 +1,3 @@
-nohup charno.py &
+#!/bin/bash
+
+nohup python3 charno.py &
