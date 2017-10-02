@@ -114,19 +114,23 @@ def status(message, client):
 				names = [args]
 
 		print(names)
-
-		for name in names:
-			member = discord.utils.get(message.server.members, name=name)
+		x = 0
+		if len(names) > 2:
+			x = 2
+		else:
+			x = len(names)
+		for i in range(0, x):
+			member = discord.utils.get(message.server.members, name=names[i])
 			if member:
 				values = get_data(member.id)
 				yield from print_status(client=client, author=member, channel=message.channel, values=values)
 			else:
-				member = discord.utils.get(message.server.members, nick=name)
+				member = discord.utils.get(message.server.members, nick=names[i])
 				if member:
 					values = get_data(member.id)
 					yield from print_status(client=client, author=member, channel=message.channel, values=values)
 				else:
-					yield from client.send_message(message.channel, "Member '" + name + "' not found!")
+					yield from client.send_message(message.channel, "Member '" + names[i] + "' not found!")
 
 
 def get_data(clientid):
