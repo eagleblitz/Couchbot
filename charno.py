@@ -54,7 +54,7 @@ def save():
 		level.save()
 		commands.save()
 		timer = time.time()
-		print("fuck me senpai")
+		logging.debug("Saving...")
 
 if __name__ == "__main__":
 	logging.basicConfig(filename=config.LOG_PATH, filemode='w', level=logging.DEBUG)
